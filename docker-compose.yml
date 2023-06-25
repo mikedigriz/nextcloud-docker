@@ -1,0 +1,38 @@
+version: '3'
+
+volumes:
+  nextcloud:
+  db_nextcloud:
+
+services:
+  db_nextcloud:
+    image: postgres:14.1-alpine
+    container_name: db_nextcloud
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=PA$$WORD
+    volumes:
+      - 'db_nextcloud:/var/lib/postgresql/data'      
+
+  app:
+    image: nextcloud
+    container_name: nextcloud-app
+    environment:
+      - TZ=Europe/Moscow
+      - REDIS_HOST=redis-nextcloud
+      - REDIS_HOST_PASSWORD=PA$$WORD_REDIS
+    restart: always
+    ports:
+      - 8081:80
+    links:
+      - db_nextcloud
+    volumes:
+      - nextcloud:/var/www/html
+      - ./nextcloud.ini:/usr/local/etc/php/conf.d/nextcloud.ini
+  redis-nextcloud:
+    image: redis:alpine
+    container_name: redis-nextcloud
+    command: redis-server --requirepass PA$$WORD_REDIS
+    restart: unless-stopped

@@ -1,0 +1,16 @@
+# This file contain fixes and tune instructions for Nextcloud
+      
+# Fix Cron. Example for /etc/crontab. Change in admin panel - Background jobs from AJAX to Cron
+*/5 * * * * root /usr/bin/docker exec -u www-data nextcloud-app php -f /var/www/html/cron.php > /dev/null
+
+# Cron sheduler for docker compose up      
+@reboot YourUser /usr/bin/docker compose -f /home/YourUser/github/nextcloud/docker-compose.yml up > /dev/null
+
+# Tune settings in volume. add this in config/config.php
+      'overwriteprotocol' => 'https',
+      'force_language' => 'ru',
+      'force_locale' => 'ru',
+
+# Try to fix bug 'Error when assembling chunks, status code 504'
+sudo /usr/bin/docker exec -u www-data nextcloud-app php -f /var/www/html/occ config:app:set files max_chunk_size --value 20971520
+
